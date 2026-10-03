@@ -1,6 +1,17 @@
 # DS4Arduino
 
+[![Arduino Library Manager](https://www.ardu-badge.com/badge/DS4Arduino.svg)](https://www.ardu-badge.com/DS4Arduino)
+[![Release](https://img.shields.io/github/v/release/vaibhav-rm/DS4Arduino)](https://github.com/vaibhav-rm/DS4Arduino/releases)
+[![Last commit](https://img.shields.io/github/last-commit/vaibhav-rm/DS4Arduino)](https://github.com/vaibhav-rm/DS4Arduino/commits)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![ESP32 Classic BT](https://img.shields.io/badge/ESP32-Classic%20BT-blue.svg)](https://www.espressif.com/en/products/socs/esp32)
+
 Native DualShock 4 Bluetooth Classic HID host for the **original ESP32**, usable from the normal Arduino IDE / Arduino-ESP32 environment.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/pad-dark.png">
+  <img src="assets/image.png" width="480" alt="DualShock 4 controller outline">
+</picture>
 
 ```
 DualShock 4 --(Bluetooth Classic)--> ESP32 --> DS4Arduino --> Arduino sketch
@@ -43,9 +54,17 @@ Arduino-ESP32 core: targets 2.x (ESP-IDF 4.4) and 3.x (ESP-IDF 5.x) via the ESP-
 
 ## Installation
 
-1. Arduino IDE → Sketch → Include Library → Add `.ZIP Library` (or clone into `Documents/Arduino/libraries/DS4Arduino`).
-2. Tools → Board → `DOIT ESP32 DEVKIT V1` (or your original-ESP32 board).
-3. Open File → Examples → DS4Arduino → `BasicConnect`, flash.
+Via Library Manager (recommended): Arduino IDE → Sketch → Include
+Library → Manage Libraries → search **DS4Arduino** → Install.
+
+No Library Manager entry on your setup? Fall back to ZIP: Sketch →
+Include Library → Add `.ZIP Library` (or clone into
+`Documents/Arduino/libraries/DS4Arduino`).
+
+Then:
+
+1. Tools → Board → `DOIT ESP32 DEVKIT V1` (or your original-ESP32 board).
+2. Open File → Examples → DS4Arduino → `BasicConnect`, flash.
 
 ## Pairing (preferred flow)
 
