@@ -193,22 +193,31 @@ dl.trouble dd { margin: 0.15rem 0 0; color: var(--muted); }
 #padSvg { width: 100%; height: auto; display: block; max-width: 720px; margin: 0 auto; }
 #padTilt { transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1); transform-box: fill-box; transform-origin: center; }
 .padbody { fill: oklch(0.24 0.028 262); stroke: var(--border); stroke-width: 2; }
-.padwell { fill: oklch(0.15 0.015 260); stroke: var(--border); stroke-width: 1.5; }
 .padthumb { fill: oklch(0.45 0.05 260); stroke: oklch(0.6 0.05 260); stroke-width: 1.5; }
-.padtouch { fill: oklch(0.16 0.015 260); stroke: var(--border); stroke-width: 1.5; }
+.padtouch { fill: none; stroke: transparent; stroke-width: 2; transition: stroke 120ms; }
+#b-tp.on { stroke: var(--accent); filter: drop-shadow(0 0 6px oklch(0.68 0.16 250 / 0.8)); }
+.zone { fill: transparent; transition: fill 120ms, fill-opacity 120ms; }
+.zone.on { fill: var(--accent); fill-opacity: 0.45; }
+.trigtab { fill: none; stroke: var(--border); stroke-width: 2; }
+#l2fill, #r2fill { fill: var(--accent); }
 #lightbar { fill: oklch(0.35 0.05 260); transition: fill 200ms, filter 200ms; }
 #lightbar.on { fill: var(--accent); filter: drop-shadow(0 0 10px oklch(0.68 0.16 250 / 0.9)); }
 .face { fill: oklch(0.2 0.02 260); stroke: var(--border); stroke-width: 1.5; transition: fill 120ms; }
-.face text { fill: var(--muted); font-size: 16px; text-anchor: middle; font-family: var(--sans); }
+.face text { fill: var(--muted); font-size: 13px; text-anchor: middle; font-family: var(--sans); }
 #b-triangle.on circle { fill: var(--green); }
 #b-circle.on circle { fill: var(--red); }
 #b-cross.on circle { fill: var(--accent); }
 #b-square.on circle { fill: var(--pink); }
 #b-triangle.on text, #b-circle.on text, #b-cross.on text, #b-square.on text { fill: oklch(0.15 0.01 260); font-weight: 700; }
-.dbtn { fill: oklch(0.2 0.02 260); stroke: var(--border); stroke-width: 1.5; transition: fill 120ms; }
-.dbtn.on { fill: var(--accent); }
-.sysbtn { fill: oklch(0.2 0.02 260); stroke: var(--border); stroke-width: 1.5; transition: fill 120ms; }
+.sysbtn { fill: transparent; stroke: transparent; transition: fill 120ms; }
 .sysbtn.on { fill: var(--accent); }
+.battwrap { display: flex; gap: 1rem; align-items: center; margin-top: 0.7rem; }
+.batticon { width: 118px; flex: none; }
+.battbody { fill: none; stroke: var(--border); stroke-width: 2; }
+.battnub { fill: var(--border); }
+#battfill { fill: var(--green); }
+.battbolt { fill: var(--amber); display: none; }
+#battpct { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
 .sysbtn text { fill: var(--muted); font-size: 10px; text-anchor: middle; font-family: var(--sans); }
 .sysbtn.on text { fill: oklch(0.15 0.01 260); }
 .shoulder { fill: oklch(0.2 0.02 260); stroke: var(--border); stroke-width: 1.5; transition: fill 120ms; }

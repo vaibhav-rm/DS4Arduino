@@ -24,10 +24,14 @@ single restrained hero wash.
 - Sticky slim nav (brand + Docs / Live test).
 - Numbered pairing steps (leading numerals, no side-stripe accents).
 - API as a definition table, mono call column.
-- Live stage: inline SVG DualShock 4, data-bound groups:
-  sticks (translate), face buttons (fill swap to face color),
-  D-pad (fill swap), touchpad (finger dots), light bar (glow on link),
-  whole-controller gyro tilt (subtle rotate, disabled under
-  prefers-reduced-motion).
+- Live stage: the contributor-supplied DualShock 4 line art
+  (`assets/pad-dark.png`, white-on-transparent for the dark theme) as the
+  SVG base layer, with data-bound overlays pinned to measured art
+  coordinates: sticks (translate), face buttons (fill swap to face color),
+  D-pad/shoulder/system zones (translucent fill), touchpad (finger dots),
+  L2/R2 peek tabs (analog fill height), light bar (glow on link),
+  gyro tilt replaced by gravity tilt from the accelerometer
+  (accelerometers hold still, gyros only move while rotating).
+  Whole pad incl. art tilts as one group so overlays never drift.
 - Telemetry as plain labeled numbers, log as mono console block.
 - Diagnostics strip: counts + last rejection reason (plain text).
