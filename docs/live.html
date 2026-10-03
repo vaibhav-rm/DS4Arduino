@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS4Arduino — live controller test</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><strong>DS4Arduino</strong>
+<nav><a href="index.html">Docs</a><a href="live.html">Live test</a></nav>
+</header>
+<main>
+<section class="card">
+<h2>Live controller test</h2>
+<p class="muted">Flash the <code class="inline">ControllerTest</code> example, then stream its serial port here.
+Requires Chrome/Edge (WebSerial) over HTTPS or <code class="inline">localhost</code>.</p>
+<p>
+<button class="btn" id="connectBtn">Connect serial</button>
+<button class="btn secondary" id="disconnectBtn" disabled>Disconnect</button>
+<span class="pill warn" id="status">disconnected</span>
+<span class="muted" id="portInfo"></span>
+</p>
+<p class="muted">Packets: <span id="seq">–</span> · rate: <span id="hz">–</span> Hz · checksum errors: <span id="crcerr">0</span></p>
+</section>
+
+<div class="grid">
+<section class="card">
+<h2>Sticks</h2>
+<p class="muted">Left (<span id="lxv">128</span>, <span id="lyv">128</span>)</p>
+<div class="stickbox"><div class="stickdot" id="dotL"></div></div>
+<p class="muted">Right (<span id="rxv">128</span>, <span id="ryv">128</span>)</p>
+<div class="stickbox"><div class="stickdot" id="dotR"></div></div>
+</section>
+
+<section class="card">
+<h2>Triggers &amp; battery</h2>
+<p>L2 <span id="l2v">0</span></p><div class="bar"><div id="l2bar"></div></div>
+<p>R2 <span id="r2v">0</span></p><div class="bar"><div id="r2bar"></div></div>
+<p>Battery <span id="battxt">–</span> <span class="pill warn" id="chg" style="display:none">charging</span></p>
+<div class="bar"><div id="battbar"></div></div>
+<h2>Motion</h2>
+<p class="muted" id="imu">gyro – · accel –</p>
+</section>
+
+<section class="card">
+<h2>Buttons</h2>
+<div class="btns">
+<span class="padbtn" id="b-triangle">△</span>
+<span class="padbtn" id="b-circle">○</span>
+<span class="padbtn" id="b-cross">✕</span>
+<span class="padbtn" id="b-square">□</span>
+<span class="padbtn" id="b-l1">L1</span>
+<span class="padbtn" id="b-r1">R1</span>
+<span class="padbtn" id="b-l3">L3</span>
+<span class="padbtn" id="b-r3">R3</span>
+<span class="padbtn" id="b-share">Share</span>
+<span class="padbtn" id="b-options">Opt</span>
+<span class="padbtn" id="b-ps">PS</span>
+<span class="padbtn" id="b-tp">Touch</span>
+</div>
+<h2>D-pad</h2>
+<div class="btns">
+<span class="padbtn" id="d-up">▲</span>
+<span class="padbtn" id="d-left">◀</span>
+<span class="padbtn" id="d-down">▼</span>
+<span class="padbtn" id="d-right">▶</span>
+<span class="padbtn" id="d-none">·</span>
+</div>
+</section>
+
+<section class="card">
+<h2>Touchpad</h2>
+<div class="touchpad" id="touchpad">
+<div class="touchdot" id="tdot0"></div>
+<div class="touchdot" id="tdot1"></div>
+</div>
+<p class="muted" id="touchtxt">no contact</p>
+</section>
+</div>
+
+<section class="card">
+<h2>Raw log</h2>
+<p><label><input type="checkbox" id="autoscroll" checked> autoscroll</label></p>
+<div id="log"></div>
+</section>
+</main>
+<footer>DS4Arduino · MIT · lines not starting with <code class="inline">$DS4</code> are ignored</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let port = null, reader = null, keepReading = false;
+let lastSeq = -1, lastT = 0, crcErr = 0;
+
+function setBtn(id, on) { $(id).classList.toggle('on', !!on); }
+
+function handleLine(line) {
+  if (!line.startsWith('$DS4,')) return;
+  const star = line.lastIndexOf('*');
+  if (star < 0) return;
+  const body = line.slice(1, star);
+  const want = line.slice(star + 1).trim().toUpperCase();
+  let cs = 0;
+  for (const ch of body) cs ^= ch.charCodeAt(0);
+  if (cs.toString(16).toUpperCase().padStart(2, '0') !== want) { crcErr++; $('crcerr').textContent = crcErr; return; }
+  const comma = body.indexOf(',');
+  if (comma < 0) return;
+  const f = body.slice(comma + 1).split(',').map(Number);
+  if (f.length !== 24 || f.some(isNaN)) return;
+  const [seq, lx, ly, rx, ry, l2, r2, b0, b1, b2, batt, chg,
+         gx, gy, gz, ax, ay, az, t0a, t0x, t0y, t1a, t1x, t1y] = f;
+  // stats
+  $('seq').textContent = seq;
+  const now = performance.now();
+  if (lastT) $('hz').textContent = (1000 / Math.max(1, now - lastT)).toFixed(1);
+  lastT = now; lastSeq = seq;
+  // sticks
+  const pct = v => (v / 255 * 100).toFixed(1) + '%';
+  $('dotL').style.left = pct(lx); $('dotL').style.top = pct(ly);
+  $('dotR').style.left = pct(rx); $('dotR').style.top = pct(ry);
+  $('lxv').textContent = lx; $('lyv').textContent = ly;
+  $('rxv').textContent = rx; $('ryv').textContent = ry;
+  // triggers + battery
+  $('l2bar').style.width = (l2 / 255 * 100) + '%'; $('l2v').textContent = l2;
+  $('r2bar').style.width = (r2 / 255 * 100) + '%'; $('r2v').textContent = r2;
+  $('battbar').style.width = (batt / 10 * 100) + '%'; $('battxt').textContent = batt + ' / 10';
+  $('chg').style.display = chg ? 'inline-block' : 'none';
+  // buttons
+  setBtn('b-square', b0 & 0x10); setBtn('b-cross', b0 & 0x20);
+  setBtn('b-circle', b0 & 0x40); setBtn('b-triangle', b0 & 0x80);
+  setBtn('b-l1', b1 & 0x01); setBtn('b-r1', b1 & 0x02);
+  const l2b = b1 & 0x04, r2b = b1 & 0x08;
+  setBtn('b-share', b1 & 0x10); setBtn('b-options', b1 & 0x20);
+  setBtn('b-l3', b1 & 0x40); setBtn('b-r3', b1 & 0x80);
+  setBtn('b-ps', b2 & 0x01); setBtn('b-tp', b2 & 0x02);
+  const hat = b0 & 0x0F;
+  setBtn('d-up', hat === 0 || hat === 1 || hat === 7);
+  setBtn('d-right', hat >= 1 && hat <= 3);
+  setBtn('d-down', hat >= 3 && hat <= 5);
+  setBtn('d-left', hat >= 5 && hat <= 7);
+  setBtn('d-none', hat === 8);
+  if (l2b) $('l2bar').style.background = 'var(--green)';
+  else $('l2bar').style.background = '';
+  if (r2b) $('r2bar').style.background = 'var(--green)';
+  else $('r2bar').style.background = '';
+  // motion
+  $('imu').textContent = `gyro ${gx}, ${gy}, ${gz} · accel ${ax}, ${ay}, ${az}`;
+  // touch
+  const show = (dot, a, x, y, xmax, ymax) => {
+    if (!a) { dot.style.display = 'none'; return; }
+    dot.style.display = 'block';
+    dot.style.left = (x / xmax * 100) + '%';
+    dot.style.top = (y / ymax * 100) + '%';
+  };
+  show($('tdot0'), t0a, t0x, t0y, 1920, 942);
+  show($('tdot1'), t1a, t1x, t1y, 1920, 942);
+  $('touchtxt').textContent = (t0a || t1a)
+    ? `t0 ${t0a ? `(${t0x}, ${t0y})` : '–'} · t1 ${t1a ? `(${t1x}, ${t1y})` : '–'}`
+    : 'no contact';
+}
+
+function logLine(line) {
+  const log = $('log');
+  const div = document.createElement('div');
+  div.textContent = line;
+  log.appendChild(div);
+  while (log.children.length > 40) log.removeChild(log.firstChild);
+  if ($('autoscroll').checked) log.scrollTop = log.scrollHeight;
+}
+
+async function readLoop() {
+  let buf = '';
+  const dec = new TextDecoderStream();
+  const readable = port.readable.pipeThrough(dec);
+  reader = readable.getReader();
+  try {
+    while (keepReading) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += value;
+      let i;
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i).trim();
+        buf = buf.slice(i + 1);
+        if (!line) continue;
+        handleLine(line);
+        if (!line.startsWith('$DS4,') || Math.random() < 0.02) logLine(line);
+      }
+    }
+  } catch (e) {
+    logLine('# read error: ' + e);
+  } finally {
+    try { reader.releaseLock(); } catch (e) {}
+  }
+}
+
+$('connectBtn').addEventListener('click', async () => {
+  if (!('serial' in navigator)) {
+    $('status').textContent = 'WebSerial unsupported — use Chrome/Edge';
+    $('status').className = 'pill bad';
+    return;
+  }
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 115200 });
+    keepReading = true;
+    readLoop();
+    $('status').textContent = 'connected';
+    $('status').className = 'pill ok';
+    $('connectBtn').disabled = true;
+    $('disconnectBtn').disabled = false;
+  } catch (e) {
+    $('status').textContent = 'connect failed';
+    $('status').className = 'pill bad';
+  }
+});
+
+$('disconnectBtn').addEventListener('click', async () => {
+  keepReading = false;
+  try { await reader.cancel(); } catch (e) {}
+  try { await port.close(); } catch (e) {}
+  port = null;
+  $('status').textContent = 'disconnected';
+  $('status').className = 'pill warn';
+  $('connectBtn').disabled = false;
+  $('disconnectBtn').disabled = true;
+});
+</script>
+</body>
+</html>

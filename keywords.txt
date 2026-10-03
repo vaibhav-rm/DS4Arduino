@@ -1,0 +1,6 @@
+DS4Controller	keyword1
+DS4Arduino	keyword1
+begin	update	connected	keyword2
+leftStickX	leftStickY	rightStickX	rightStickY	l2	r2	keyword2
+cross	circle	square	triangle	l1	r1	l3	r3	share	options	ps	touchpad	dpad	keyword2
+gyroX	gyroY	gyroZ	accelX	accelY	accelZ	batteryLevel	setLED	setRumble	keyword2
