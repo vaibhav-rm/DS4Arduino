@@ -107,6 +107,7 @@ Errors are never silent: `Bluetooth initialization failed`, `No DS4 found`, `Pai
 - `examples/ControllerTest` — press-every-button check with edge prints and
   light-bar stepping, plus 20 Hz `$DS4` machine lines for the web tester.
 - `examples/RCCar` — TB6612FNG car: left-stick Y = throttle, right-stick X = steering. Motor code lives **only** in the example, never in the core library.
+- `examples/MotorTest` — no-Bluetooth wiring/power check: drives both motors through forward/backward/spin/stop so you can prove the driver, battery and wiring before involving the controller.
 
 ## Docs site + live web tester
 

@@ -164,15 +164,23 @@ void DS4Controller::update() {
         prevBtState_ = st;
         onBtStateChange(st);
     }
-    // Phase 9: keep trying. Known address -> reconnect, else keep scanning.
+    // Phase 9: keep trying, then get out of the way. We page a few times
+    // for a controller that is awake but dropped; afterwards we only
+    // listen, because a woken DS4 pages us itself and simultaneous
+    // paging from both ends collides forever.
     if ((st == DS4::BTState::Disconnected || st == DS4::BTState::Failed) &&
         (millis() - lastRetryMs_ > 3000)) {
         lastRetryMs_ = millis();
-        if (bt_.hasAddress()) {
+        if (bt_.hasAddress() && reconnTries_ < 5) {
+            reconnTries_++;
             bt_.reconnect();
-        } else {
+        } else if (!bt_.hasAddress()) {
             bt_.startScan();
         }
+        // else: known address, out of page attempts -> listen for PS wake.
+    }
+    if (st == DS4::BTState::Found || st == DS4::BTState::Connected) {
+        reconnTries_ = 0;
     }
     // If inquiry is up but completely silent, the start call may have been
     // lost to a stack race: re-issue it (prints its result code).
@@ -192,6 +200,16 @@ void DS4Controller::update() {
         }
     } else {
         scanRetryMs_ = 0;
+    }
+    // Half-open recovery: control up but interrupt gone (e.g. after a
+    // sleep/wake cycle) means no input will ever arrive. Reopen it.
+    if (st == DS4::BTState::Connected && !bt_.intrUp() &&
+        (millis() - lastIntrRetryMs_ > 5000)) {
+        lastIntrRetryMs_ = millis();
+        bt_.openIntr();
+    }
+    if (st == DS4::BTState::Connected && bt_.intrUp()) {
+        lastIntrRetryMs_ = millis();
     }
     // If the enable-output raced the connection, retry once it is up.
     // Keep re-sending until input actually flows (some units ignore the

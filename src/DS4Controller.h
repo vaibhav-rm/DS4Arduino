@@ -126,6 +126,8 @@ private:
     unsigned long scanRetryMs_ = 0;
     uint32_t lastDiscSeen_ = 0;
     bool fullModeSent_ = false;
+    int reconnTries_ = 0;
+    unsigned long lastIntrRetryMs_ = 0;
     mutable char scanMsg_[96];
 
     void setError(DS4::DS4Error e) { lastError_ = e; }

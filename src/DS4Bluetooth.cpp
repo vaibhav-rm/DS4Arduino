@@ -345,7 +345,16 @@ void ctrlConnectCfm(uint16_t lcid, uint16_t result) {
     Serial.println(result);
 #endif
     if (result != DS4_L2CAP_CONN_OK) {
-        self->onHidFailure(DS4_ERR_HID_CONNECT_FAILED);
+        // A stale outbound request may fail while an inbound channel is
+        // already live: only fail when nothing is up.
+        if (!self->hasLiveChannel()) {
+            self->onHidFailure(DS4_ERR_HID_CONNECT_FAILED);
+        }
+        return;
+    }
+    if (self->ctrlCid() != 0 && self->ctrlCid() != lcid) {
+        // Inbound won the race: drop our redundant outbound channel.
+        L2CA_DisconnectReq(lcid);
         return;
     }
     self->setCtrlCid(lcid);
@@ -366,7 +375,13 @@ void intrConnectCfm(uint16_t lcid, uint16_t result) {
     DS4Bluetooth* self = s_inst;
     if (self == nullptr) return;
     if (result != DS4_L2CAP_CONN_OK) {
-        self->onHidFailure(DS4_ERR_HID_CONNECT_FAILED);
+        if (!self->hasLiveChannel()) {
+            self->onHidFailure(DS4_ERR_HID_CONNECT_FAILED);
+        }
+        return;
+    }
+    if (self->intrCid() != 0 && self->intrCid() != lcid) {
+        L2CA_DisconnectReq(lcid);
         return;
     }
     self->setIntrCid(lcid);
@@ -412,14 +427,18 @@ void onChannelDisc(uint16_t lcid, bool ack_needed, bool isCtrl) {
         L2CA_DisconnectRsp(lcid);
     }
     if (self == nullptr) return;
+    // Only the stored channel matters: a redundant duplicate dropping
+    // must not disturb the live session.
     if (isCtrl) {
+        if (self->ctrlCid() != lcid) return;
         self->setCtrlCid(0);
     } else {
+        if (self->intrCid() != lcid) return;
         self->setIntrCid(0);
     }
-    // Either channel dropping ends the session; also close the sibling.
-    self->closeChannels();
-    self->onHidDisconnected();
+    if (!self->hasLiveChannel()) {
+        self->onHidDisconnected();
+    }
 }
 
 void gapCallback(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t* param) {
@@ -527,19 +546,36 @@ bool DS4Bluetooth::openControl() {
 }
 
 void DS4Bluetooth::acceptIncoming(const uint8_t bda[6], uint8_t id, uint16_t lcid, bool isCtrl) {
-    // DS4-initiated reconnect (it pages us when woken with a stored master).
-    if (!hasAddr_ || addrEqual(lastAddr_, bda)) {
-        onDeviceFound(bda);
-    } else if (state_ != BTState::Scanning) {
+    if (state_ == BTState::Connected && hasAddr_ && addrEqual(lastAddr_, bda)) {
+        // Duplicate channel on a live session (e.g. our own outbound
+        // request racing the controller's inbound one): accept it so the
+        // peer stays happy, but keep routing on the existing channels.
+        // Inbound data on any channel of the right type still parses.
+        L2CA_ConnectRsp(bda, id, lcid, DS4_L2CAP_CONN_OK, 0);
+        return;
+    }
+    // A DS4 whose master we are pages us when woken with PS. Accept it
+    // unless we are already fully connected to someone else (refusing an
+    // inbound page while paging out ourselves is a classic pairing
+    // deadlock: both sides collide forever).
+    if (state_ == BTState::Connected) {
         L2CA_ConnectRsp(bda, id, lcid, 1 /*refused*/, 0);
         return;
-    } else {
-        onDeviceFound(bda);
     }
+    // Adopt the address (first pairing, or a replacement controller).
+    onDeviceFound(bda);
+    // Free the radio for the connection: inquiry and paging fight.
+    esp_bt_gap_cancel_discovery();
+    DS4_BT_LOG(isCtrl ? "Incoming CTRL accepted" : "Incoming INTR accepted");
     L2CA_ConnectRsp(bda, id, lcid, DS4_L2CAP_CONN_OK, 0);
     if (isCtrl) {
         setCtrlCid(lcid);
         setState(BTState::Connecting);
+        ensureMtuCfg();
+        L2CA_ConfigReq(lcid, mtuCfg64);
+        // Host drives the interrupt channel, same as the outbound flow.
+        uint16_t intr = L2CA_ConnectReq(kPsmIntr, lastAddr_);
+        (void)intr;
     } else {
         setIntrCid(lcid);
         if (ctrlCid_ != 0) {
@@ -805,6 +841,14 @@ DS4Error DS4Bluetooth::reconnect() {
     return DS4_OK;
 }
 
+DS4Error DS4Bluetooth::openIntr() {
+    if (!hasAddr_) {
+        return DS4_ERR_NO_DS4_FOUND;
+    }
+    uint16_t cid = L2CA_ConnectReq(kPsmIntr, lastAddr_);
+    return cid == 0 ? DS4_ERR_HID_CONNECT_FAILED : DS4_OK;
+}
+
 bool DS4Bluetooth::sendOutputReport(const uint8_t* data, size_t len) {
     // HID SET_REPORT(Output) on the control channel: header + report.
     if (!connected() || ctrlCid_ == 0 || data == nullptr || len == 0 ||
@@ -863,6 +907,8 @@ DS4Error DS4Bluetooth::reconnect() {
     setError(DS4_ERR_NOT_SUPPORTED);
     return DS4_ERR_NOT_SUPPORTED;
 }
+
+DS4Error DS4Bluetooth::openIntr() { return DS4_ERR_NOT_SUPPORTED; }
 
 #endif
 

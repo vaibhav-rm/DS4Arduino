@@ -1,114 +1,281 @@
-// RCCar: drive a TB6612FNG dual-motor car from a DualShock 4.
-//
-// Mapping (example only, NOT part of the core library):
-//   Left stick Y  -> forward / reverse (both motors)
-//   Right stick X -> steering (differential mix)
-//
-// TB6612FNG wiring:
-//   PWMA = GPIO 5,  AIN1 = GPIO 18, AIN2 = GPIO 19
-//   PWMB = GPIO 23, BIN1 = GPIO 21, BIN2 = GPIO 22
-//   STBY = GPIO 17
-//
-// Pairing: flash, power the ESP32, hold SHARE+PS until the light bar
-// flashes, wait for connection. Left stick full-up = full forward.
 #include <DS4Arduino.h>
+
+// ========================================
+// TB6612FNG
+// ========================================
+
+// Left motor
+#define PWMA 5
+#define AIN1 18
+#define AIN2 19
+
+// Right motor
+#define PWMB 23
+#define BIN1 21
+#define BIN2 22
+
+// Standby
+#define STBY 17
+
+// LEDC PWM channels (Arduino-ESP32 2.x/3.x compatible, see setup)
+#define CH_A 0
+#define CH_B 1
+#define PWM_FREQ 1000
+#define PWM_RES 8  // duty 0..255
+
+// PWM write that matches the attach style below: on core 3.x ledcWrite
+// takes a PIN, on 2.x it takes the channel. Mixing them up drives the
+// wrong pins (e.g. channels 0/1 hit GPIO0/GPIO1) and the car sits dead.
+static inline void pwmA(uint32_t duty) {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcWrite(PWMA, duty);
+#else
+  ledcWrite(CH_A, duty);
+#endif
+}
+
+static inline void pwmB(uint32_t duty) {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcWrite(PWMB, duty);
+#else
+  ledcWrite(CH_B, duty);
+#endif
+}
+
+// ========================================
+// SETTINGS
+// ========================================
+
+#define DEADZONE 18   // raw stick units away from centre (128)
+#define MAX_SPEED 255
+
+// This car has its right motor leads flipped at the B01/B02 terminals,
+// so a "forward" command physically drives it backward. Compensate here
+// instead of rewiring: 1 = right motor reversed, 0 = wired straight.
+#define RIGHT_MOTOR_REVERSED 1
 
 DS4Controller ds4;
 
-// Motor pins (TB6612FNG).
-static const int PWMA = 5;
-static const int AIN1 = 18;
-static const int AIN2 = 19;
-static const int PWMB = 23;
-static const int BIN1 = 21;
-static const int BIN2 = 22;
-static const int STBY = 17;
-
-// LEDC PWM channels (Arduino-ESP32 2.x/3.x compatible via ledc* API).
-static const int CH_A = 0;
-static const int CH_B = 1;
-static const int PWM_FREQ = 20000;
-static const int PWM_RES = 8;  // 0..255
-
-static int stickToSigned(uint8_t v) {
-    // 0..255 centre 128 -> -255..+255 (Y up = positive forward).
-    int s = (int)v - 128;
-    // Small deadband around centre.
-    if (s > -6 && s < 6) s = 0;
-    return s * 2 > 255 ? 255 : (s * 2 < -255 ? -255 : s * 2);
-}
-
-static void motorWrite(int pwmPinChannel, int in1, int in2, int speed) {
-    // speed: -255..+255
-    if (speed > 0) {
-        digitalWrite(in1, HIGH);
-        digitalWrite(in2, LOW);
-        ledcWrite(pwmPinChannel, speed);
-    } else if (speed < 0) {
-        digitalWrite(in1, LOW);
-        digitalWrite(in2, HIGH);
-        ledcWrite(pwmPinChannel, -speed);
-    } else {
-        digitalWrite(in1, LOW);
-        digitalWrite(in2, LOW);
-        ledcWrite(pwmPinChannel, 0);
-    }
-}
+// ========================================
+// SETUP
+// ========================================
 
 void setup() {
-    Serial.begin(115200);
-    for (int i = 0; i < 20 && !Serial; i++) delay(100);
 
-    pinMode(AIN1, OUTPUT);
-    pinMode(AIN2, OUTPUT);
-    pinMode(BIN1, OUTPUT);
-    pinMode(BIN2, OUTPUT);
-    pinMode(STBY, OUTPUT);
-    digitalWrite(STBY, HIGH);  // enable driver
+  Serial.begin(115200);
+  for (int i = 0; i < 20 && !Serial; i++) delay(100);
 
-    // LEDC PWM setup (API differs between Arduino-ESP32 2.x and 3.x).
+  // Motor pins
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+
+  pinMode(BIN1, OUTPUT);
+  pinMode(BIN2, OUTPUT);
+
+  pinMode(STBY, OUTPUT);
+
+  // PWM channels (API differs between Arduino-ESP32 2.x and 3.x)
 #if ESP_ARDUINO_VERSION_MAJOR >= 3
-    ledcAttachChannel(PWMA, PWM_FREQ, PWM_RES, CH_A);
-    ledcAttachChannel(PWMB, PWM_FREQ, PWM_RES, CH_B);
+  ledcAttach(PWMA, PWM_FREQ, PWM_RES);
+  ledcAttach(PWMB, PWM_FREQ, PWM_RES);
 #else
-    ledcSetup(CH_A, PWM_FREQ, PWM_RES);
-    ledcSetup(CH_B, PWM_FREQ, PWM_RES);
-    ledcAttachPin(PWMA, CH_A);
-    ledcAttachPin(PWMB, CH_B);
+  ledcSetup(CH_A, PWM_FREQ, PWM_RES);
+  ledcSetup(CH_B, PWM_FREQ, PWM_RES);
+  ledcAttachPin(PWMA, CH_A);
+  ledcAttachPin(PWMB, CH_B);
 #endif
 
-    ds4.begin();
-    Serial.println("RCCar ready. Hold SHARE+PS to pair.");
+  // Enable TB6612FNG
+  digitalWrite(STBY, HIGH);
+
+  stopMotors();
+
+  // DS4: no MAC address needed. Pairing is SHARE + PS (see below).
+  ds4.begin();
+
+  Serial.println("================================");
+  Serial.println("       DS4 ESP32 RC CAR");
+  Serial.println("================================");
+  Serial.println("Hold SHARE + PS until the light bar flashes white.");
 }
 
+// ========================================
+// LOOP
+// ========================================
+
 void loop() {
-    ds4.update();
 
-    if (!ds4.connected()) {
-        // Safety: stop motors when link is down.
-        motorWrite(CH_A, AIN1, AIN2, 0);
-        motorWrite(CH_B, BIN1, BIN2, 0);
-        delay(50);
-        return;
+  ds4.update();
+
+  // Safety stop if controller disconnects
+  if (!ds4.connected()) {
+    stopMotors();
+    static unsigned long lastw = 0;
+    if (millis() - lastw > 2000) {
+      lastw = millis();
+      Serial.print("Waiting for DS4... ");
+      Serial.println(ds4.statusText());
     }
+    delay(50);
+    return;
+  }
 
-    // NOTE: DS4 Y axis: 0 = up. leftStickY() returns raw 0..255.
-    int forward = -stickToSigned(ds4.leftStickY());   // up = +forward
-    int steer = stickToSigned(ds4.rightStickX());      // right = +
+  // ======================================
+  // LEFT STICK Y
+  // Forward / Reverse
+  // DS4 raw: 0 = up, 255 = down, 128 = centre
+  // ======================================
 
-    int left = forward + steer / 2;
-    int right = forward - steer / 2;
-    left = constrain(left, -255, 255);
-    right = constrain(right, -255, 255);
+  int throttle = 128 - (int)ds4.leftStickY();  // UP = positive
 
-    motorWrite(CH_A, AIN1, AIN2, left);
-    motorWrite(CH_B, BIN1, BIN2, right);
+  // ======================================
+  // RIGHT STICK X
+  // Left / Right
+  // DS4 raw: 0 = left, 255 = right
+  // ======================================
 
-    static unsigned long last = 0;
-    if (millis() - last > 250) {
-        last = millis();
-        Serial.printf("LY=%d RX=%d fwd=%d str=%d L=%d R=%d batt=%d\n",
-                      ds4.leftStickY(), ds4.rightStickX(),
-                      forward, steer, left, right, ds4.batteryLevel());
-    }
+  int steering = (int)ds4.rightStickX() - 128;  // RIGHT = positive
+
+  // ======================================
+  // DEADZONE
+  // ======================================
+
+  if (abs(throttle) < DEADZONE)
+    throttle = 0;
+
+  if (abs(steering) < DEADZONE)
+    steering = 0;
+
+  // ======================================
+  // CONVERT to -255..+255
+  // ======================================
+
+  throttle = constrain(throttle * 2, -MAX_SPEED, MAX_SPEED);
+  steering = constrain(steering * 2, -MAX_SPEED, MAX_SPEED);
+
+  // ======================================
+  // DIFFERENTIAL STEERING
+  // ======================================
+
+  int leftSpeed =
+    throttle + steering;
+
+  int rightSpeed =
+    throttle - steering;
+
+  leftSpeed = constrain(
+    leftSpeed,
+    -MAX_SPEED,
+    MAX_SPEED
+  );
+
+  rightSpeed = constrain(
+    rightSpeed,
+    -MAX_SPEED,
+    MAX_SPEED
+  );
+
+  // ======================================
+  // MOTOR CONTROL
+  // ======================================
+
+  setLeftMotor(leftSpeed);
+  setRightMotor(rightSpeed);
+
+  // Debug, throttled so the serial link stays readable
+  static unsigned long lastd = 0;
+  if (millis() - lastd > 100) {
+    lastd = millis();
+    Serial.printf(
+      "T:%4d S:%4d L:%4d R:%4d\n",
+      throttle,
+      steering,
+      leftSpeed,
+      rightSpeed
+    );
+  }
+
+  delay(10);
+}
+
+// ========================================
+// LEFT MOTOR
+// ========================================
+
+void setLeftMotor(int speed) {
+
+  speed = constrain(speed, -255, 255);
+
+  if (speed > 0) {
+
+    digitalWrite(AIN1, HIGH);
+    digitalWrite(AIN2, LOW);
+
+    pwmA(speed);
+
+  } else if (speed < 0) {
+
+    digitalWrite(AIN1, LOW);
+    digitalWrite(AIN2, HIGH);
+
+    pwmA(-speed);
+
+  } else {
+
+    digitalWrite(AIN1, LOW);
+    digitalWrite(AIN2, LOW);
+
+    pwmA(0);
+  }
+}
+
+// ========================================
+// RIGHT MOTOR
+// ========================================
+
+void setRightMotor(int speed) {
+
+  speed = constrain(speed, -255, 255);
+
+#if RIGHT_MOTOR_REVERSED
+  speed = -speed;
+#endif
+
+  if (speed > 0) {
+
+    digitalWrite(BIN1, HIGH);
+    digitalWrite(BIN2, LOW);
+
+    pwmB(speed);
+
+  } else if (speed < 0) {
+
+    digitalWrite(BIN1, LOW);
+    digitalWrite(BIN2, HIGH);
+
+    pwmB(-speed);
+
+  } else {
+
+    digitalWrite(BIN1, LOW);
+    digitalWrite(BIN2, LOW);
+
+    pwmB(0);
+  }
+}
+
+// ========================================
+// STOP
+// ========================================
+
+void stopMotors() {
+
+  pwmA(0);
+  pwmB(0);
+
+  digitalWrite(AIN1, LOW);
+  digitalWrite(AIN2, LOW);
+
+  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN2, LOW);
 }

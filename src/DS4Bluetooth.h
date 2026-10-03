@@ -63,6 +63,14 @@ public:
 
     const uint8_t* lastAddress() const { return lastAddr_; }
     bool hasAddress() const { return hasAddr_; }
+    uint16_t ctrlCid() const { return ctrlCid_; }
+    uint16_t intrCid() const { return intrCid_; }
+    bool hasLiveChannel() const { return ctrlCid_ != 0 || intrCid_ != 0; }
+    bool intrUp() const { return intrCid_ != 0; }
+
+    // Open the interrupt channel on an otherwise live session
+    // (half-open recovery). No-op unless we have an address.
+    DS4Error openIntr();
 
     // Diagnostics: inquiry results seen since boot.
     uint32_t discResCount() const { return discResCount_; }
