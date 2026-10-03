@@ -17,7 +17,11 @@
 //
 // How to test: pair (SHARE+PS), then press every button one by one, move
 // both sticks through their full range, squeeze L2/R2, swipe the touchpad,
-// tilt the controller. Each press also steps the light bar color.
+// tilt the controller.
+//
+// Output-path demo: each press of TRIANGLE steps the light bar through
+// off/red/green/blue (printed as "# led=R,G,B"). Delete the triEdge block
+// below if you never want the sketch to touch the LED.
 #include <DS4Arduino.h>
 
 DS4Controller ds4;
@@ -91,10 +95,17 @@ void loop() {
         }
         if (triEdge) {  // output-path demo: step the light bar color
             ledStep = (uint8_t)((ledStep + 1) % 4);
-            if (ledStep == 0) ds4.setLED(0, 0, 0);
-            if (ledStep == 1) ds4.setLED(255, 0, 0);
-            if (ledStep == 2) ds4.setLED(0, 255, 0);
-            if (ledStep == 3) ds4.setLED(0, 0, 255);
+            uint8_t r = 0, g = 0, b = 0;
+            if (ledStep == 1) r = 255;
+            if (ledStep == 2) g = 255;
+            if (ledStep == 3) b = 255;
+            ds4.setLED(r, g, b);
+            Serial.print("# led=");
+            Serial.print(r);
+            Serial.print(",");
+            Serial.print(g);
+            Serial.print(",");
+            Serial.println(b);
         }
     }
     lastBtn.cross = ds4.cross();

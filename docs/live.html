@@ -22,33 +22,37 @@
 </section>
 
 <section class="stage" aria-label="Controller state">
-<svg id="padSvg" viewBox="0 0 340 300" role="img" aria-label="DualShock 4 with live inputs">
+<svg id="padSvg" viewBox="0 0 640 360" role="img" aria-label="DualShock 4 with live inputs">
 <g id="padTilt">
-<path class="padbody" d="M170,52 C200,52 235,58 262,68 L296,80 C310,86 316,108 314,146 C312,190 306,232 292,264 C286,278 270,278 262,264 L238,224 C230,211 216,205 202,207 L138,207 C124,205 110,211 102,224 L78,264 C70,278 54,278 48,264 C34,232 28,190 26,146 C24,108 30,86 44,80 L78,68 C105,58 140,52 170,52 Z"/>
-<rect id="lightbar" x="150" y="60" width="40" height="12" rx="6"/>
-<rect id="b-l1" class="shoulder" x="66" y="74" width="52" height="16" rx="8"><title>L1</title></rect>
-<rect id="b-r1" class="shoulder" x="222" y="74" width="52" height="16" rx="8"><title>R1</title></rect>
-<rect id="b-tp" class="padtouch" x="140" y="100" width="60" height="44" rx="8"><title>Touchpad click</title></rect>
-<circle id="tdot0" class="tdot" cx="150" cy="110" r="4"/>
-<circle id="tdot1" class="tdot" cx="190" cy="134" r="4"/>
-<g id="b-share" class="sysbtn"><title>Share</title><rect x="108" y="92" width="44" height="14" rx="7"/><text x="130" y="102">SHARE</text></g>
-<g id="b-options" class="sysbtn"><title>Options</title><rect x="188" y="92" width="44" height="14" rx="7"/><text x="210" y="102">OPT</text></g>
-<g id="d-up" class="dbtn"><title>D-pad up</title><rect x="80" y="122" width="16" height="20" rx="3"/></g>
-<g id="d-down" class="dbtn"><title>D-pad down</title><rect x="80" y="152" width="16" height="20" rx="3"/></g>
-<g id="d-left" class="dbtn"><title>D-pad left</title><rect x="58" y="140" width="20" height="16" rx="3"/></g>
-<g id="d-right" class="dbtn"><title>D-pad right</title><rect x="96" y="140" width="20" height="16" rx="3"/></g>
-<g id="d-none" class="dbtn"><title>D-pad released</title><rect x="80" y="140" width="16" height="16" rx="3"/></g>
-<circle class="padwell" cx="108" cy="200" r="24"/>
-<circle class="padwell" cx="232" cy="200" r="24"/>
-<circle id="dotL" class="padthumb" cx="108" cy="200" r="11"/>
-<circle id="dotR" class="padthumb" cx="232" cy="200" r="11"/>
-<g id="b-l3" class="sysbtn"><title>L3</title><circle cx="108" cy="240" r="9"/><text x="108" y="243">L3</text></g>
-<g id="b-r3" class="sysbtn"><title>R3</title><circle cx="232" cy="240" r="9"/><text x="232" y="243">R3</text></g>
-<g id="b-triangle" class="face"><title>Triangle</title><circle cx="252" cy="128" r="13"/><text x="252" y="134">△</text></g>
-<g id="b-circle" class="face"><title>Circle</title><circle cx="272" cy="148" r="13"/><text x="272" y="154">○</text></g>
-<g id="b-cross" class="face"><title>Cross</title><circle cx="252" cy="168" r="13"/><text x="252" y="174">✕</text></g>
-<g id="b-square" class="face"><title>Square</title><circle cx="232" cy="148" r="13"/><text x="232" y="154">□</text></g>
-<g id="b-ps" class="sysbtn"><title>PS</title><circle cx="170" cy="232" r="12"/><text x="170" y="236">PS</text></g>
+<rect x="185" y="6" width="80" height="24" rx="9" class="shoulder"/><title>L2 trigger</title>
+<rect id="l2fill" x="189" y="26" width="72" height="0" rx="4"/>
+<rect x="375" y="6" width="80" height="24" rx="9" class="shoulder"/><title>R2 trigger</title>
+<rect id="r2fill" x="379" y="26" width="72" height="0" rx="4"/>
+<path class="padbody" d="M185,58 C260,48 380,48 455,58 L505,78 C525,86 532,110 530,150 L524,210 C520,260 505,305 488,322 C478,332 462,330 456,318 L428,262 C422,249 408,242 394,244 L246,244 C232,242 218,249 212,262 L184,318 C178,330 162,332 152,322 C135,305 120,260 116,210 L110,150 C108,110 115,86 135,78 Z"/>
+<rect id="lightbar" x="285" y="44" width="70" height="10" rx="5"/>
+<rect id="b-l1" class="shoulder" x="170" y="30" width="110" height="22" rx="11"><title>L1</title></rect>
+<rect id="b-r1" class="shoulder" x="360" y="30" width="110" height="22" rx="11"><title>R1</title></rect>
+<rect id="b-tp" class="padtouch" x="250" y="100" width="140" height="80" rx="10"><title>Touchpad click</title></rect>
+<circle id="tdot0" class="tdot" cx="270" cy="115" r="5"/>
+<circle id="tdot1" class="tdot" cx="370" cy="165" r="5"/>
+<g id="b-share" class="sysbtn"><title>Share</title><rect x="192" y="96" width="48" height="16" rx="8"/><text x="216" y="108">SHARE</text></g>
+<g id="b-options" class="sysbtn"><title>Options</title><rect x="400" y="96" width="48" height="16" rx="8"/><text x="424" y="108">OPTIONS</text></g>
+<g id="d-up" class="dbtn"><title>D-pad up</title><rect x="207" y="146" width="16" height="22" rx="3"/></g>
+<g id="d-down" class="dbtn"><title>D-pad down</title><rect x="207" y="184" width="16" height="22" rx="3"/></g>
+<g id="d-left" class="dbtn"><title>D-pad left</title><rect x="185" y="168" width="22" height="16" rx="3"/></g>
+<g id="d-right" class="dbtn"><title>D-pad right</title><rect x="223" y="168" width="22" height="16" rx="3"/></g>
+<g id="d-none" class="dbtn"><title>D-pad released</title><rect x="207" y="168" width="16" height="16" rx="3"/></g>
+<circle class="padwell" cx="272" cy="252" r="26"/>
+<circle class="padwell" cx="368" cy="252" r="26"/>
+<circle id="dotL" class="padthumb" cx="272" cy="252" r="12"/>
+<circle id="dotR" class="padthumb" cx="368" cy="252" r="12"/>
+<g id="b-l3" class="sysbtn"><title>L3</title><circle cx="272" cy="292" r="9"/><text x="272" y="295">L3</text></g>
+<g id="b-r3" class="sysbtn"><title>R3</title><circle cx="368" cy="292" r="9"/><text x="368" y="295">R3</text></g>
+<g id="b-triangle" class="face"><title>Triangle</title><circle cx="442" cy="140" r="15"/><text x="442" y="146">△</text></g>
+<g id="b-circle" class="face"><title>Circle</title><circle cx="478" cy="176" r="15"/><text x="478" y="182">○</text></g>
+<g id="b-cross" class="face"><title>Cross</title><circle cx="442" cy="212" r="15"/><text x="442" y="218">✕</text></g>
+<g id="b-square" class="face"><title>Square</title><circle cx="406" cy="176" r="15"/><text x="406" y="182">□</text></g>
+<g id="b-ps" class="sysbtn"><title>PS</title><circle cx="320" cy="208" r="13"/><text x="320" y="212">PS</text></g>
 </g>
 </svg>
 <p class="muted" style="text-align:center;margin-bottom:0">
@@ -138,8 +142,8 @@ function handleLine(line) {
   if (lastT) $('hz').textContent = (1000 / Math.max(1, now - lastT)).toFixed(1);
   lastT = now; lastSeq = seq;
   $('lightbar').classList.add('on');
-  // sticks move the SVG thumbs (well centres 108/232,200; travel 13)
-  const CX = [108, 232], CY = 200, TR = 13;
+  // sticks move the SVG thumbs (wells 272/368,252; travel 14)
+  const CX = [272, 368], CY = 252, TR = 14;
   $('dotL').setAttribute('cx', (CX[0] + (lx - 128) / 127 * TR).toFixed(1));
   $('dotL').setAttribute('cy', (CY + (ly - 128) / 127 * TR).toFixed(1));
   $('dotR').setAttribute('cx', (CX[1] + (rx - 128) / 127 * TR).toFixed(1));
@@ -150,11 +154,18 @@ function handleLine(line) {
   if (!REDUCED) {
     const rot = Math.max(-6, Math.min(6, gz / 1500));
     const tx = Math.max(-8, Math.min(8, ax / 2500));
-    $('padTilt').setAttribute('transform', `rotate(${rot.toFixed(2)} 170 175) translate(${tx.toFixed(1)} 0)`);
+    $('padTilt').setAttribute('transform', `rotate(${rot.toFixed(2)} 320 190) translate(${tx.toFixed(1)} 0)`);
   }
   // triggers + battery
   $('l2bar').style.width = (l2 / 255 * 100) + '%'; $('l2v').textContent = l2;
   $('r2bar').style.width = (r2 / 255 * 100) + '%'; $('r2v').textContent = r2;
+  const fillTrig = (id, v) => {
+    const h = v / 255 * 16;
+    $(id).setAttribute('height', h.toFixed(1));
+    $(id).setAttribute('y', (26 - h).toFixed(1));
+  };
+  fillTrig('l2fill', l2);
+  fillTrig('r2fill', r2);
   $('battbar').style.width = (batt / 10 * 100) + '%'; $('battxt').textContent = batt + ' / 10';
   $('chg').style.display = chg ? 'inline-block' : 'none';
   // buttons
@@ -177,13 +188,13 @@ function handleLine(line) {
   else $('r2bar').style.background = '';
   // motion
   $('imu').textContent = `gyro ${gx}, ${gy}, ${gz} · accel ${ax}, ${ay}, ${az}`;
-  // touch fingers live on the SVG touchpad (rect 140,100 60x44)
+  // touch fingers live on the SVG touchpad (rect 250,100 140x80)
   const show = (id, a, x, y) => {
     const dot = $(id);
     if (!a) { dot.style.display = 'none'; return; }
     dot.style.display = 'block';
-    dot.setAttribute('cx', (140 + x / 1920 * 60).toFixed(1));
-    dot.setAttribute('cy', (100 + y / 942 * 44).toFixed(1));
+    dot.setAttribute('cx', (250 + x / 1920 * 140).toFixed(1));
+    dot.setAttribute('cy', (100 + y / 942 * 80).toFixed(1));
   };
   show('tdot0', t0a, t0x, t0y);
   show('tdot1', t1a, t1x, t1y);
