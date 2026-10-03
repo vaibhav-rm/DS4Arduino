@@ -3,83 +3,86 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DS4Arduino — live controller test</title>
+<title>DS4Arduino, live controller test</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="nav"><strong>DS4Arduino</strong>
+<header class="nav"><span><span class="mark"></span><strong>DS4Arduino</strong></span>
 <nav><a href="index.html">Docs</a><a href="live.html">Live test</a></nav>
 </header>
 <main>
-<section class="card">
-<h2>Live controller test</h2>
-<p class="muted">Flash the <code class="inline">ControllerTest</code> example, then stream its serial port here.
-Requires Chrome/Edge (WebSerial) over HTTPS or <code class="inline">localhost</code>.</p>
-<p>
+<section class="panel">
+<div class="toolbar">
 <button class="btn" id="connectBtn">Connect serial</button>
 <button class="btn secondary" id="disconnectBtn" disabled>Disconnect</button>
 <span class="pill warn" id="status">disconnected</span>
 <span class="muted" id="portInfo"></span>
+</div>
+<p class="muted" style="margin-bottom:0">Flash the <code class="inline">ControllerTest</code> example first. Needs Chrome or Edge over HTTPS or <code class="inline">localhost</code>. Packets <span id="seq">–</span> · <span id="hz">–</span> Hz · checksum errors <span id="crcerr">0</span></p>
+</section>
+
+<section class="stage" aria-label="Controller state">
+<svg id="padSvg" viewBox="0 0 340 300" role="img" aria-label="DualShock 4 with live inputs">
+<g id="padTilt">
+<path class="padbody" d="M170,52 C200,52 235,58 262,68 L296,80 C310,86 316,108 314,146 C312,190 306,232 292,264 C286,278 270,278 262,264 L238,224 C230,211 216,205 202,207 L138,207 C124,205 110,211 102,224 L78,264 C70,278 54,278 48,264 C34,232 28,190 26,146 C24,108 30,86 44,80 L78,68 C105,58 140,52 170,52 Z"/>
+<rect id="lightbar" x="150" y="60" width="40" height="12" rx="6"/>
+<rect id="b-l1" class="shoulder" x="66" y="74" width="52" height="16" rx="8"><title>L1</title></rect>
+<rect id="b-r1" class="shoulder" x="222" y="74" width="52" height="16" rx="8"><title>R1</title></rect>
+<rect id="b-tp" class="padtouch" x="140" y="100" width="60" height="44" rx="8"><title>Touchpad click</title></rect>
+<circle id="tdot0" class="tdot" cx="150" cy="110" r="4"/>
+<circle id="tdot1" class="tdot" cx="190" cy="134" r="4"/>
+<g id="b-share" class="sysbtn"><title>Share</title><rect x="108" y="92" width="44" height="14" rx="7"/><text x="130" y="102">SHARE</text></g>
+<g id="b-options" class="sysbtn"><title>Options</title><rect x="188" y="92" width="44" height="14" rx="7"/><text x="210" y="102">OPT</text></g>
+<g id="d-up" class="dbtn"><title>D-pad up</title><rect x="80" y="122" width="16" height="20" rx="3"/></g>
+<g id="d-down" class="dbtn"><title>D-pad down</title><rect x="80" y="152" width="16" height="20" rx="3"/></g>
+<g id="d-left" class="dbtn"><title>D-pad left</title><rect x="58" y="140" width="20" height="16" rx="3"/></g>
+<g id="d-right" class="dbtn"><title>D-pad right</title><rect x="96" y="140" width="20" height="16" rx="3"/></g>
+<g id="d-none" class="dbtn"><title>D-pad released</title><rect x="80" y="140" width="16" height="16" rx="3"/></g>
+<circle class="padwell" cx="108" cy="200" r="24"/>
+<circle class="padwell" cx="232" cy="200" r="24"/>
+<circle id="dotL" class="padthumb" cx="108" cy="200" r="11"/>
+<circle id="dotR" class="padthumb" cx="232" cy="200" r="11"/>
+<g id="b-l3" class="sysbtn"><title>L3</title><circle cx="108" cy="240" r="9"/><text x="108" y="243">L3</text></g>
+<g id="b-r3" class="sysbtn"><title>R3</title><circle cx="232" cy="240" r="9"/><text x="232" y="243">R3</text></g>
+<g id="b-triangle" class="face"><title>Triangle</title><circle cx="252" cy="128" r="13"/><text x="252" y="134">△</text></g>
+<g id="b-circle" class="face"><title>Circle</title><circle cx="272" cy="148" r="13"/><text x="272" y="154">○</text></g>
+<g id="b-cross" class="face"><title>Cross</title><circle cx="252" cy="168" r="13"/><text x="252" y="174">✕</text></g>
+<g id="b-square" class="face"><title>Square</title><circle cx="232" cy="148" r="13"/><text x="232" y="154">□</text></g>
+<g id="b-ps" class="sysbtn"><title>PS</title><circle cx="170" cy="232" r="12"/><text x="170" y="236">PS</text></g>
+</g>
+</svg>
+<p class="muted" style="text-align:center;margin-bottom:0">
+Left (<span id="lxv">128</span>, <span id="lyv">128</span>) ·
+Right (<span id="rxv">128</span>, <span id="ryv">128</span>) ·
+<span id="touchtxt">no contact</span>
 </p>
-<p class="muted">Packets: <span id="seq">–</span> · rate: <span id="hz">–</span> Hz · checksum errors: <span id="crcerr">0</span></p>
 </section>
 
-<div class="grid">
-<section class="card">
-<h2>Sticks</h2>
-<p class="muted">Left (<span id="lxv">128</span>, <span id="lyv">128</span>)</p>
-<div class="stickbox"><div class="stickdot" id="dotL"></div></div>
-<p class="muted">Right (<span id="rxv">128</span>, <span id="ryv">128</span>)</p>
-<div class="stickbox"><div class="stickdot" id="dotR"></div></div>
-</section>
-
-<section class="card">
-<h2>Triggers &amp; battery</h2>
-<p>L2 <span id="l2v">0</span></p><div class="bar"><div id="l2bar"></div></div>
-<p>R2 <span id="r2v">0</span></p><div class="bar"><div id="r2bar"></div></div>
-<p>Battery <span id="battxt">–</span> <span class="pill warn" id="chg" style="display:none">charging</span></p>
+<div class="grid2">
+<section class="panel">
+<h2>Triggers, battery, motion</h2>
+<div class="kv"><span>L2 <span id="l2v">0</span></span><span>R2 <span id="r2v">0</span></span></div>
+<div class="bar" style="margin-bottom:.4rem"><div id="l2bar"></div></div>
+<div class="bar"><div id="r2bar"></div></div>
+<div class="kv" style="margin-top:.6rem"><span>Battery</span><span id="battxt">–</span></div>
 <div class="bar"><div id="battbar"></div></div>
-<h2>Motion</h2>
-<p class="muted" id="imu">gyro – · accel –</p>
+<p class="muted" style="margin:.4rem 0 0"><span class="pill warn" id="chg" style="display:none">charging</span></p>
+<div class="kv" style="margin-top:.6rem"><span>Motion</span><span id="imu">–</span></div>
 </section>
 
-<section class="card">
-<h2>Buttons</h2>
-<div class="btns">
-<span class="padbtn" id="b-triangle">△</span>
-<span class="padbtn" id="b-circle">○</span>
-<span class="padbtn" id="b-cross">✕</span>
-<span class="padbtn" id="b-square">□</span>
-<span class="padbtn" id="b-l1">L1</span>
-<span class="padbtn" id="b-r1">R1</span>
-<span class="padbtn" id="b-l3">L3</span>
-<span class="padbtn" id="b-r3">R3</span>
-<span class="padbtn" id="b-share">Share</span>
-<span class="padbtn" id="b-options">Opt</span>
-<span class="padbtn" id="b-ps">PS</span>
-<span class="padbtn" id="b-tp">Touch</span>
-</div>
-<h2>D-pad</h2>
-<div class="btns">
-<span class="padbtn" id="d-up">▲</span>
-<span class="padbtn" id="d-left">◀</span>
-<span class="padbtn" id="d-down">▼</span>
-<span class="padbtn" id="d-right">▶</span>
-<span class="padbtn" id="d-none">·</span>
-</div>
-</section>
-
-<section class="card">
-<h2>Touchpad</h2>
-<div class="touchpad" id="touchpad">
-<div class="touchdot" id="tdot0"></div>
-<div class="touchdot" id="tdot1"></div>
-</div>
-<p class="muted" id="touchtxt">no contact</p>
+<section class="panel">
+<h2>Stream diagnostics</h2>
+<div class="kv"><span>Lines</span><span id="stTotal">0</span></div>
+<div class="kv"><span><code class="inline">$DS4</code> lines</span><span id="stDs4">0</span></div>
+<div class="kv"><span>Parsed</span><span id="stOk">0</span></div>
+<div class="kv"><span>Rejected</span><span id="stBad">0</span></div>
+<div class="kv"><span>Reason</span><span id="rejReason">–</span></div>
+<p class="muted" style="font-size:.82rem">Last line: <code class="inline" id="lastDs4">–</code></p>
+<p class="pill warn" id="noDs4hint" style="display:none">No $DS4 lines yet, flash the <strong>ControllerTest</strong> example (BasicConnect does not emit them).</p>
 </section>
 </div>
 
-<section class="card">
+<section class="panel">
 <h2>Raw log</h2>
 <p><label><input type="checkbox" id="autoscroll" checked> autoscroll</label></p>
 <div id="log"></div>
@@ -91,22 +94,42 @@ Requires Chrome/Edge (WebSerial) over HTTPS or <code class="inline">localhost</c
 const $ = id => document.getElementById(id);
 let port = null, reader = null, keepReading = false;
 let lastSeq = -1, lastT = 0, crcErr = 0;
+let stTotal = 0, stDs4 = 0, stOk = 0, stBad = 0;
+const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function setBtn(id, on) { $(id).classList.toggle('on', !!on); }
 
+function reject(reason, line) {
+  stBad++;
+  $('stBad').textContent = stBad;
+  $('rejReason').textContent = reason;
+  if (line !== undefined) {
+    $('lastDs4').textContent = line.length > 120 ? line.slice(0, 120) + '…' : line;
+  }
+}
+
 function handleLine(line) {
   if (!line.startsWith('$DS4,')) return;
+  stDs4++;
+  $('stDs4').textContent = stDs4;
+  $('noDs4hint').style.display = 'none';
+  $('lastDs4').textContent = line.length > 120 ? line.slice(0, 120) + '…' : line;
   const star = line.lastIndexOf('*');
-  if (star < 0) return;
+  if (star < 0) { reject('no *checksum* marker'); return; }
   const body = line.slice(1, star);
   const want = line.slice(star + 1).trim().toUpperCase();
+  if (!/^[0-9A-F]{2}$/.test(want)) { reject('bad checksum text: ' + want); return; }
   let cs = 0;
   for (const ch of body) cs ^= ch.charCodeAt(0);
-  if (cs.toString(16).toUpperCase().padStart(2, '0') !== want) { crcErr++; $('crcerr').textContent = crcErr; return; }
+  if (cs.toString(16).toUpperCase().padStart(2, '0') !== want) { crcErr++; $('crcerr').textContent = crcErr; reject('checksum mismatch'); return; }
   const comma = body.indexOf(',');
-  if (comma < 0) return;
-  const f = body.slice(comma + 1).split(',').map(Number);
-  if (f.length !== 24 || f.some(isNaN)) return;
+  if (comma < 0) { reject('no fields'); return; }
+  const parts = body.slice(comma + 1).split(',');
+  if (parts.length !== 24) { reject('field count ' + parts.length + ' (need 24, reflash latest ControllerTest)'); return; }
+  const f = parts.map(Number);
+  if (f.some(isNaN)) { reject('non-numeric field'); return; }
+  stOk++;
+  $('stOk').textContent = stOk;
   const [seq, lx, ly, rx, ry, l2, r2, b0, b1, b2, batt, chg,
          gx, gy, gz, ax, ay, az, t0a, t0x, t0y, t1a, t1x, t1y] = f;
   // stats
@@ -114,12 +137,21 @@ function handleLine(line) {
   const now = performance.now();
   if (lastT) $('hz').textContent = (1000 / Math.max(1, now - lastT)).toFixed(1);
   lastT = now; lastSeq = seq;
-  // sticks
-  const pct = v => (v / 255 * 100).toFixed(1) + '%';
-  $('dotL').style.left = pct(lx); $('dotL').style.top = pct(ly);
-  $('dotR').style.left = pct(rx); $('dotR').style.top = pct(ry);
+  $('lightbar').classList.add('on');
+  // sticks move the SVG thumbs (well centres 108/232,200; travel 13)
+  const CX = [108, 232], CY = 200, TR = 13;
+  $('dotL').setAttribute('cx', (CX[0] + (lx - 128) / 127 * TR).toFixed(1));
+  $('dotL').setAttribute('cy', (CY + (ly - 128) / 127 * TR).toFixed(1));
+  $('dotR').setAttribute('cx', (CX[1] + (rx - 128) / 127 * TR).toFixed(1));
+  $('dotR').setAttribute('cy', (CY + (ry - 128) / 127 * TR).toFixed(1));
   $('lxv').textContent = lx; $('lyv').textContent = ly;
   $('rxv').textContent = rx; $('ryv').textContent = ry;
+  // subtle gyro tilt of the whole pad
+  if (!REDUCED) {
+    const rot = Math.max(-6, Math.min(6, gz / 1500));
+    const tx = Math.max(-8, Math.min(8, ax / 2500));
+    $('padTilt').setAttribute('transform', `rotate(${rot.toFixed(2)} 170 175) translate(${tx.toFixed(1)} 0)`);
+  }
   // triggers + battery
   $('l2bar').style.width = (l2 / 255 * 100) + '%'; $('l2v').textContent = l2;
   $('r2bar').style.width = (r2 / 255 * 100) + '%'; $('r2v').textContent = r2;
@@ -145,15 +177,16 @@ function handleLine(line) {
   else $('r2bar').style.background = '';
   // motion
   $('imu').textContent = `gyro ${gx}, ${gy}, ${gz} · accel ${ax}, ${ay}, ${az}`;
-  // touch
-  const show = (dot, a, x, y, xmax, ymax) => {
+  // touch fingers live on the SVG touchpad (rect 140,100 60x44)
+  const show = (id, a, x, y) => {
+    const dot = $(id);
     if (!a) { dot.style.display = 'none'; return; }
     dot.style.display = 'block';
-    dot.style.left = (x / xmax * 100) + '%';
-    dot.style.top = (y / ymax * 100) + '%';
+    dot.setAttribute('cx', (140 + x / 1920 * 60).toFixed(1));
+    dot.setAttribute('cy', (100 + y / 942 * 44).toFixed(1));
   };
-  show($('tdot0'), t0a, t0x, t0y, 1920, 942);
-  show($('tdot1'), t1a, t1x, t1y, 1920, 942);
+  show('tdot0', t0a, t0x, t0y);
+  show('tdot1', t1a, t1x, t1y);
   $('touchtxt').textContent = (t0a || t1a)
     ? `t0 ${t0a ? `(${t0x}, ${t0y})` : '–'} · t1 ${t1a ? `(${t1x}, ${t1y})` : '–'}`
     : 'no contact';
@@ -183,6 +216,8 @@ async function readLoop() {
         const line = buf.slice(0, i).trim();
         buf = buf.slice(i + 1);
         if (!line) continue;
+        stTotal++;
+        $('stTotal').textContent = stTotal;
         handleLine(line);
         if (!line.startsWith('$DS4,') || Math.random() < 0.02) logLine(line);
       }
@@ -196,7 +231,7 @@ async function readLoop() {
 
 $('connectBtn').addEventListener('click', async () => {
   if (!('serial' in navigator)) {
-    $('status').textContent = 'WebSerial unsupported — use Chrome/Edge';
+    $('status').textContent = 'WebSerial unsupported, use Chrome/Edge';
     $('status').className = 'pill bad';
     return;
   }
@@ -204,6 +239,13 @@ $('connectBtn').addEventListener('click', async () => {
     port = await navigator.serial.requestPort();
     await port.open({ baudRate: 115200 });
     keepReading = true;
+    stTotal = stDs4 = stOk = stBad = 0; crcErr = 0; lastT = 0;
+    $('stTotal').textContent = '0'; $('stDs4').textContent = '0';
+    $('stOk').textContent = '0'; $('stBad').textContent = '0';
+    $('crcerr').textContent = '0'; $('rejReason').textContent = '–';
+    $('lastDs4').textContent = '–';
+    $('noDs4hint').style.display = 'none';
+    setTimeout(() => { if (keepReading && stDs4 === 0) $('noDs4hint').style.display = 'inline-block'; }, 6000);
     readLoop();
     $('status').textContent = 'connected';
     $('status').className = 'pill ok';
@@ -220,6 +262,7 @@ $('disconnectBtn').addEventListener('click', async () => {
   try { await reader.cancel(); } catch (e) {}
   try { await port.close(); } catch (e) {}
   port = null;
+  $('lightbar').classList.remove('on');
   $('status').textContent = 'disconnected';
   $('status').className = 'pill warn';
   $('connectBtn').disabled = false;

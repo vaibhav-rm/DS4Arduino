@@ -3,36 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DS4Arduino — DualShock 4 over Bluetooth Classic for ESP32</title>
+<title>DS4Arduino, DualShock 4 over Bluetooth Classic for ESP32</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="nav"><strong>DS4Arduino</strong>
+<header class="nav"><span><span class="mark"></span><strong>DS4Arduino</strong></span>
 <nav><a href="index.html">Docs</a><a href="live.html">Live test</a></nav>
 </header>
 <main>
 <div class="hero">
-<h1>DS4Arduino</h1>
-<p>Native DualShock 4 Bluetooth Classic HID host for the original ESP32.<br>No console, no dongle, no extra dependencies.</p>
-<p><span class="pill ok">input validated on hardware</span></p>
-<p><a class="btn" href="live.html">Open live controller test</a>
-<a class="btn secondary" href="#install">Install</a></p>
+<div>
+<p class="rise" style="font-family:var(--mono);font-size:.82rem;color:var(--accent)">ARDUINO LIBRARY · ORIGINAL ESP32 · BLUETOOTH CLASSIC HID</p>
+<h1 class="rise d1">DualShock 4,<span class="thin">meet ESP32.</span></h1>
+<p class="lede rise d2">A native HID host for the Sony DualShock 4 on the original ESP32. Pair with SHARE&nbsp;+&nbsp;PS, read sticks, buttons, triggers, motion, touch and battery from a normal Arduino sketch. No console, no dongle, no extra dependencies.</p>
+<div class="btnrow rise d2">
+<a class="btn" href="live.html">Test your controller live</a>
+<a class="btn secondary" href="#install">Install the library</a>
+</div>
+<div class="specstrip rise d2">
+<span>input report <b>0x11</b></span><span><b>78 B</b> full state</span><span>sticks <b>0..255</b></span><span><b>SSP</b> just-works pairing</span><span>license <b>MIT</b></span>
+</div>
+</div>
+<div class="rise d2" role="img" aria-label="DualShock 4 controller outline">
+<svg class="padmark" viewBox="0 0 340 300" aria-hidden="true">
+<path d="M170,52 C200,52 235,58 262,68 L296,80 C310,86 316,108 314,146 C312,190 306,232 292,264 C286,278 270,278 262,264 L238,224 C230,211 216,205 202,207 L138,207 C124,205 110,211 102,224 L78,264 C70,278 54,278 48,264 C34,232 28,190 26,146 C24,108 30,86 44,80 L78,68 C105,58 140,52 170,52 Z" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<rect x="150" y="60" width="40" height="12" rx="6" fill="oklch(0.68 0.16 250)" style="filter:drop-shadow(0 0 8px oklch(0.68 0.16 250 / 0.9))"/>
+<rect x="140" y="100" width="60" height="44" rx="8" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<rect x="66" y="74" width="52" height="16" rx="8" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<rect x="222" y="74" width="52" height="16" rx="8" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<rect x="120" y="94" width="28" height="12" rx="6" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="2.5"/>
+<rect x="192" y="94" width="28" height="12" rx="6" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="2.5"/>
+<rect x="80" y="124" width="16" height="48" rx="4" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<rect x="64" y="140" width="48" height="16" rx="4" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<circle cx="108" cy="200" r="24" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<circle cx="108" cy="200" r="11" fill="oklch(0.5 0.06 260)"/>
+<circle cx="232" cy="200" r="24" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+<circle cx="232" cy="200" r="11" fill="oklch(0.5 0.06 260)"/>
+<circle cx="252" cy="128" r="12" fill="none" stroke="oklch(0.6 0.15 145)" stroke-width="3"/>
+<circle cx="272" cy="148" r="12" fill="none" stroke="oklch(0.62 0.17 15)" stroke-width="3"/>
+<circle cx="252" cy="168" r="12" fill="none" stroke="oklch(0.62 0.15 250)" stroke-width="3"/>
+<circle cx="232" cy="148" r="12" fill="none" stroke="oklch(0.64 0.14 340)" stroke-width="3"/>
+<circle cx="170" cy="232" r="12" fill="none" stroke="oklch(0.45 0.05 260)" stroke-width="3"/>
+</svg>
+</div>
 </div>
 
-<section class="card" id="install">
-<h2>Install</h2>
-<ol>
-<li>Arduino IDE → Sketch → Include Library → Add <code class="inline">.ZIP</code> (this repo), or clone into <code class="inline">Documents/Arduino/libraries/DS4Arduino</code>.</li>
-<li>Board: <code class="inline">DOIT ESP32 DEVKIT V1</code> (or any original ESP32 with Bluetooth Classic).</li>
-<li>Flash <code class="inline">File → Examples → DS4Arduino → BasicConnect</code>.</li>
-<li>Open Serial Monitor at 115200, hold <strong>SHARE + PS</strong> until the light bar flashes white.</li>
+<section class="block prose" id="install">
+<h2 class="sect"><span class="no">01</span>Install</h2>
+<p class="sub">Two minutes from download to paired controller.</p>
+<ol class="steps">
+<li><div>Add this repo as a <code class="inline">.ZIP</code> library (Sketch, Include Library), or clone it into your Arduino libraries folder.</div></li>
+<li><div>Select the <code class="inline">DOIT ESP32 DEVKIT V1</code> board, or any original ESP32 with Bluetooth Classic. S3, C3 and C6 boards have no Classic radio and refuse loudly instead of failing silently.</div></li>
+<li><div>Flash <code class="inline">File, Examples, DS4Arduino, BasicConnect</code> and open Serial Monitor at 115200.</div></li>
+<li><div>Hold <strong>SHARE + PS</strong> until the light bar flashes white. Watch for <code class="inline">DS4 found, Connecting..., DS4 connected</code>, then move the sticks.</div></li>
 </ol>
-<p class="muted">Requires Arduino-ESP32 2.x/3.x on an <strong>original ESP32</strong> (S3/C3/C6 have no Classic radio and report <code class="inline">Not supported</code> instead of failing silently).</p>
 </section>
 
-<section class="card">
-<h2>Minimal sketch</h2>
-<pre> #include &lt;DS4Arduino.h&gt;
+<section class="block prose">
+<h2 class="sect"><span class="no">02</span>Minimal sketch</h2>
+<p class="sub">The whole public surface you need for most builds.</p>
+<pre>#include &lt;DS4Arduino.h&gt;
 
 DS4Controller ds4;
 
@@ -50,63 +80,64 @@ void loop() {
 }</pre>
 </section>
 
-<section class="card">
-<h2>Pairing</h2>
-<ol>
-<li>Flash a sketch, power the ESP32, open Serial Monitor (115200).</li>
-<li>Controller light bar <strong>off</strong> (hold PS ~10 s, unplug USB).</li>
-<li>Hold <strong>SHARE + PS</strong> until the light bar flashes white rapidly.</li>
-<li>Wait for <code class="inline">DS4 found → Connecting... → DS4 connected</code>.</li>
-<li>The bond is stored (NVS on ESP32), so reconnects need no re-pairing — just tap PS to wake.</li>
-</ol>
-<p class="muted">A controller previously bonded elsewhere may need its reset hole (paperclip, 5 s) before it accepts a new host.</p>
-</section>
-
-<section class="card">
-<h2>API reference</h2>
-<table>
+<section class="block">
+<h2 class="sect"><span class="no">03</span>API reference</h2>
+<p class="sub">Sticks and triggers read 0..255 (centre 128). Motion is raw int16. Battery is 0..10.</p>
+<table class="api">
 <tr><th>Call</th><th>Meaning</th></tr>
-<tr><td><code class="inline">begin() / end()</code></td><td>Start/stop Bluetooth + discovery</td></tr>
-<tr><td><code class="inline">update()</code></td><td>Drain + parse queued reports (call each <code class="inline">loop()</code>)</td></tr>
+<tr><td><code class="inline">begin() / end()</code></td><td>Start/stop Bluetooth and discovery</td></tr>
+<tr><td><code class="inline">update()</code></td><td>Drain and parse queued reports, every <code class="inline">loop()</code></td></tr>
 <tr><td><code class="inline">connected()</code></td><td>True once both HID channels are up</td></tr>
-<tr><td><code class="inline">statusText() / lastErrorText()</code></td><td>Human-readable state / sticky error</td></tr>
-<tr><td><code class="inline">leftStickX/Y(), rightStickX/Y()</code></td><td>0..255, centre 128</td></tr>
-<tr><td><code class="inline">l2(), r2()</code></td><td>Analog triggers 0..255</td></tr>
+<tr><td><code class="inline">statusText() / lastErrorText()</code></td><td>Human-readable state and sticky error</td></tr>
+<tr><td><code class="inline">leftStickX/Y(), rightStickX/Y()</code></td><td>Analog sticks</td></tr>
+<tr><td><code class="inline">l2(), r2()</code></td><td>Analog triggers</td></tr>
 <tr><td><code class="inline">cross/circle/square/triangle()</code></td><td>Face buttons</td></tr>
-<tr><td><code class="inline">l1/r1/l3/r3()</code></td><td>Shoulders + stick clicks</td></tr>
+<tr><td><code class="inline">l1/r1/l3/r3()</code></td><td>Shoulders and stick clicks</td></tr>
 <tr><td><code class="inline">share/options/ps/touchpad()</code></td><td>System buttons</td></tr>
-<tr><td><code class="inline">dpad() + dpadUp/Down/Left/Right()</code></td><td>Hat 0..7, 8 = released</td></tr>
-<tr><td><code class="inline">gyroX/Y/Z(), accelX/Y/Z()</code></td><td>Raw int16 motion</td></tr>
-<tr><td><code class="inline">touch0/1Active/X/Y()</code></td><td>Touchpad contacts (0..1920 / 0..942)</td></tr>
-<tr><td><code class="inline">batteryLevel() / charging()</code></td><td>0..10 + charging flag</td></tr>
-<tr><td><code class="inline">setLED(r,g,b) / setRumble(small,large)</code></td><td>Light bar + rumble over Bluetooth</td></tr>
-<tr><td><code class="inline">packetCount()</code></td><td>Parsed-report counter (spot drops)</td></tr>
+<tr><td><code class="inline">dpad() + dpadUp/Down/Left/Right()</code></td><td>Hat 0..7, 8 means released</td></tr>
+<tr><td><code class="inline">gyroX/Y/Z(), accelX/Y/Z()</code></td><td>Motion sensors</td></tr>
+<tr><td><code class="inline">touch0/1Active/X/Y()</code></td><td>Touchpad contacts, 1920 by 942</td></tr>
+<tr><td><code class="inline">batteryLevel() / charging()</code></td><td>Battery and charging flag</td></tr>
+<tr><td><code class="inline">setLED(r,g,b) / setRumble(small,large)</code></td><td>Light bar and rumble over Bluetooth</td></tr>
+<tr><td><code class="inline">packetCount()</code></td><td>Parsed-report counter, reveals drops</td></tr>
 </table>
 </section>
 
-<section class="card">
-<h2>Examples</h2>
-<ul>
-<li><strong>BasicConnect</strong> — connection + sticks/triggers/buttons/battery.</li>
-<li><strong>ControllerTest</strong> — press-every-button check with edge prints, LED stepping, plus 20 Hz <code class="inline">$DS4</code> machine lines for the <a href="live.html">live test page</a>.</li>
-<li><strong>RCCar</strong> — TB6612FNG car: left-stick Y = throttle, right-stick X = steering (motor code lives only in the example).</li>
-</ul>
-<h3>Machine protocol (<code class="inline">$DS4</code>)</h3>
-<pre>$DS4,SEQ,LX,LY,RX,RY,L2,R2,B0,B1,B2,BATT,CHG,GX,GY,GZ,AX,AY,AZ,T0A,T0X,T0Y,T1A,T1X,T1Y*CS</pre>
-<p class="muted">B0 = hat + face bits, B1 = shoulders/system, B2 = PS/touchpad/counter. CS = XOR of bytes between <code class="inline">$</code> and <code class="inline">*</code> as 2 hex digits. Lines starting with <code class="inline">#</code> are human comments.</p>
+<section class="block">
+<h2 class="sect"><span class="no">04</span>Examples</h2>
+<p class="sub">Motor code lives in examples only, never in the core library.</p>
+<div class="exrow">
+<div><h3>BasicConnect</h3><p class="muted">Bring-up</p></div>
+<div><p>Connection banners, raw report ID and length, sticks, triggers, buttons, battery. Start here.</p></div>
+</div>
+<div class="exrow">
+<div><h3>ControllerTest</h3><p class="muted">Full input audit</p></div>
+<div><p>Edge prints for every button, light-bar stepping on triangle, and 20&nbsp;Hz <code class="inline">$DS4</code> machine lines with checksums that feed the <a href="live.html">live tester</a>.</p>
+<pre>$DS4,SEQ,LX,LY,RX,RY,L2,R2,B0,B1,B2,...*CS</pre></div>
+</div>
+<div class="exrow">
+<div><h3>RCCar</h3><p class="muted">TB6612FNG car</p></div>
+<div><p>Left-stick Y drives throttle, right-stick X steers with a differential mix. Pins: PWMA 5, AIN1 18, AIN2 19, PWMB 23, BIN1 21, BIN2 22, STBY 17.</p></div>
+</div>
 </section>
 
-<section class="card">
-<h2>Troubleshooting</h2>
-<ul>
-<li><code class="inline">Not supported on this hardware/core</code> — S3/C3/C6 board or BT disabled; use an original ESP32.</li>
-<li>Never finds the DS4 — controller not in flashing-white SHARE+PS mode; move closer; unplug USB.</li>
-<li>Connects then drops — unstable 5 V supply is the usual cause.</li>
-<li>Only small reports / no gyro — full <code class="inline">0x11</code> mode enables after the first output report, which the library sends on connect.</li>
-<li>Stuck after switching hosts — reset the controller (paperclip, 5 s), then SHARE+PS.</li>
-</ul>
+<section class="block prose">
+<h2 class="sect"><span class="no">05</span>Troubleshooting</h2>
+<p class="sub">Errors are reported, never silent. Match your symptom:</p>
+<dl class="trouble">
+<dt>Not supported on this hardware/core</dt>
+<dd>Wrong board selected, or Bluetooth disabled. Use an original ESP32.</dd>
+<dt>Never finds the DS4</dt>
+<dd>The controller is not in flashing-white SHARE+PS mode. Move closer, unplug USB.</dd>
+<dt>Connects then drops</dt>
+<dd>Unstable 5&nbsp;V supply is the usual cause. Brownouts kill the link first.</dd>
+<dt>Only small reports, no gyro</dt>
+<dd>Full 0x11 mode enables after the first output report, which the library sends on connect.</dd>
+<dt>Stuck after switching hosts</dt>
+<dd>Reset the controller with a paperclip for five seconds, then SHARE+PS again.</dd>
+</dl>
 </section>
 </main>
-<footer>DS4Arduino · MIT · protocol notes in <code class="inline">docs/RESEARCH.md</code></footer>
+<footer>DS4Arduino · MIT · protocol notes live in <code class="inline">docs/RESEARCH.md</code></footer>
 </body>
 </html>
