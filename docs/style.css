@@ -191,7 +191,6 @@ dl.trouble dd { margin: 0.15rem 0 0; color: var(--muted); }
   margin-bottom: 1.2rem;
 }
 #padSvg { width: 100%; height: auto; display: block; max-width: 720px; margin: 0 auto; }
-#padTilt { transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1); transform-box: fill-box; transform-origin: center; }
 .padbody { fill: oklch(0.24 0.028 262); stroke: var(--border); stroke-width: 2; }
 .padthumb { fill: oklch(0.45 0.05 260); stroke: oklch(0.6 0.05 260); stroke-width: 1.5; }
 .padtouch { fill: none; stroke: transparent; stroke-width: 2; transition: stroke 120ms; }
@@ -220,6 +219,8 @@ dl.trouble dd { margin: 0.15rem 0 0; color: var(--muted); }
 #battpct { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
 .sysbtn text { fill: var(--muted); font-size: 10px; text-anchor: middle; font-family: var(--sans); }
 .sysbtn.on text { fill: oklch(0.15 0.01 260); }
+#b-l3 circle, #b-r3 circle { fill: none; stroke: var(--border); stroke-width: 1.5; }
+#b-l3.on circle, #b-r3.on circle { fill: var(--accent); }
 .shoulder { fill: oklch(0.2 0.02 260); stroke: var(--border); stroke-width: 1.5; transition: fill 120ms; }
 .shoulder.on { fill: var(--amber); }
 #l2fill, #r2fill { fill: var(--accent); }
@@ -234,6 +235,19 @@ dl.trouble dd { margin: 0.15rem 0 0; color: var(--muted); }
 }
 .panel h2 { margin: 0 0 0.5rem; font-size: 1.05rem; }
 .bar { height: 12px; background: oklch(0.14 0.015 260); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.bar > div { height: 100%; width: 0%; background: var(--accent); transition: width 100ms linear; }
+.att { width: 150px; display: block; margin: 0 auto; }
+.attbezel { fill: oklch(0.14 0.015 260); stroke: var(--border); stroke-width: 2; }
+.attsky { fill: oklch(0.36 0.08 250); }
+.attgnd { fill: oklch(0.32 0.05 60); }
+.attline { stroke: oklch(0.9 0.01 260); stroke-width: 1.5; }
+.attline.dim { opacity: 0.45; }
+#attBall { transition: transform 140ms cubic-bezier(0.22, 1, 0.36, 1); }
+#attWings rect, #attWings circle { fill: var(--amber); }
+/* steady numbers: changing widths must not reflow the page */
+.kv span:last-child, #hz, #seq, #touchtxt, #battxt, #battpct, #attTxt,
+#lxv, #lyv, #rxv, #ryv, #l2v, #r2v { font-variant-numeric: tabular-nums; }
+#lastDs4 { display: block; max-height: 3.2em; overflow: hidden; text-overflow: ellipsis; }
 .bar > div { height: 100%; width: 0%; background: var(--accent); transition: width 100ms linear; }
 .kv { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.92rem; padding: 0.2rem 0; }
 .kv span:last-child { font-family: var(--mono); }
@@ -259,6 +273,6 @@ footer { text-align: center; color: var(--muted); padding: 2.5rem 1rem; font-siz
 }
 @media (prefers-reduced-motion: reduce) {
   .rise { animation: none; }
-  #padTilt { transition: none; }
+  #attBall { transition: none; }
   html { scroll-behavior: auto; }
 }
